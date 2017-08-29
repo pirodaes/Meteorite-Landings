@@ -25,10 +25,11 @@ d3.csv("data/csv-generated.csv", function(error, data) {
 // BAR CHART
 
   var w = 1000;
-  var h = 4000;
+  var h = 1600;
   var barSvg = d3.select("body").append("svg")
     .attr("width", w)
-    .attr("height", h);
+    .attr("height", h)
+    .attr("id", "barChart");
 
 // nesting original data: grouping identical year values
   var dataByYear = d3.nest()
@@ -38,44 +39,104 @@ d3.csv("data/csv-generated.csv", function(error, data) {
     .entries(dataset) // the original array
     .filter(function (d) {
       var year = +d.key;
-      return year > 1899; // filtering years lower than 1900
+      return year > 1949; // filtering years lower than 1950
     });
   console.log(dataByYear);
 
+// drawing bars with transition and skew
   var bars = barSvg.selectAll("rect")
     .data(dataByYear)
     .enter()
     .append("rect")
-      .attr("x", function(d, i) {
-        return w/2 - d.values.length/8;
+      .attr("class", function(d, i) {
+        return "y" + d.key;
       })
+      .attr("x", w/2)
       .attr("y", function(d, i) {
         return i * 13;
       })
       .attr("fill", "white")
       .attr("height", 9)
+      .attr('transform', "skewY(25), translate(0,-231)")
+      .transition()
       .attr("width", function(d) {
         return d.values.length/8;
       })
-      .attr('transform', "skewY(25), translate(0,-231)");
+      .attr("x", function(d, i) {
+        return w/2 - d.values.length/8;
+      });
 
-    var labels = barSvg.selectAll("text")
-      .data(dataByYear)
-      .enter()
-      .append("text")
-        .text(function(d) {
-          return d.key;
+// drawing labels
+  var labels = barSvg.selectAll("text")
+    .data(dataByYear)
+    .enter()
+    .append("text")
+      .text(function(d) {
+        return d.key;
+      })
+      .attr("class", function(d, i) {
+        return "y" + d.key;
+      })
+      .attr("x", function(d, i) {
+        return w/2 + 15;
+      })
+      .attr("y", function(d, i) {
+        return 10 + i * 13;
+      })
+      .attr("font-family", "sans-serif")
+      .attr("font-size", "11px")
+      .attr("fill", "white")
+      .attr("text-anchor", "start");
+
+// drawing hoverList
+  var hoverList = barSvg.selectAll("g.list")
+    .data(dataByYear)
+    .enter()
+    .append('g')
+      .attr("class", "list")
+      .attr("id", function(d) {
+        return "list" + d.key;
+      })
+        .selectAll("text.listEntry")
+        .data(function(d, i){
+          return d.values;
         })
-        .attr("x", function(d, i) {
-          return w/2 + 15;
-        })
-        .attr("y", function(d, i) {
-          return 10 + i * 13;
-        })
-        .attr("font-family", "sans-serif")
-        .attr("font-size", "11px")
+        .enter()
+        .append("text")
+          .attr("class", "listEntry")
+          .attr("x", function(d, i) {
+            return w/2 + 30;
+          })
+          .attr("y", function(d, i) {
+            return 10 + i * 13;
+          })
+          .attr("font-family", "sans-serif")
+          .attr("font-size", "11px")
+          .attr("fill", "white")
+          .attr("text-anchor", "start")
+          .append("tspan")
+            .attr("class","entryName")
+            .text(function(d) {
+              return d.name;
+            })
+          .append("tspan")
+            .attr("class","entryData")
+            .text(function(d) {
+              return " - " + d.mass + " gr - Coord: " + d.reclat + ", " + d.reclong;
+            });
+
+
+// interactivity
+  labels.on("mouseover", function() {
+      barSvg.selectAll("." + this.getAttribute('class'))
+        .attr("fill", "orange");
+      });
+  labels.on("mouseout", function() {
+      barSvg.selectAll("." + this.getAttribute('class'))
+        .transition()
+        .duration(100)
         .attr("fill", "white");
-
+      });
 
 
     } // closes else
