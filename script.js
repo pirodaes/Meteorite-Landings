@@ -18,7 +18,7 @@ d3.csv("data/csv-generated.csv", function(error, data) {
 
 // order the array chronologically
   dataset.sort(function (a, b) {
-        return a.year - b.year;
+        return b.mass - a.mass;
   });
 
 
@@ -35,7 +35,8 @@ d3.csv("data/csv-generated.csv", function(error, data) {
   var dataByYear = d3.nest()
     .key(function(d) {
           return d.year;
-    }) // data will be grouped by year (key: year)
+    })
+    .sortKeys(d3.ascending) // data will be grouped by year (key: year)
     .entries(dataset) // the original array
     .filter(function (d) {
           var year = +d.key;
@@ -61,13 +62,8 @@ var barPadding = 4;
       .attr("fill", "white")
       .attr("height", barHeight)
       .attr('transform', "skewY(25), translate(0,-231)")
-      .transition()
-      .duration(2000)
-      .attr("width", function(d) {
-            return d.values.length/8;
-      })
       .attr("x", function(d, i) {
-            return w/2 - d.values.length/8;
+            return w/2;
       });
 
 // drawing labels
@@ -92,7 +88,9 @@ var barPadding = 4;
       .attr("fill", "white")
       .attr("text-anchor", "start");
 
-// drawing hoverList
+// drawing container for hoverList
+var listXPos = w/2 + 100;
+
   var hoverList = barSvg.selectAll("svg.list")
     .data(dataByYear)
     .enter()
@@ -102,37 +100,73 @@ var barPadding = 4;
             return "list-y" + d.key;
       })
       .attr("y", function(d, i) {
-            return i * 13;
+            return i * 13 - 10;
           })
-      .attr("opacity", "0")
-        .selectAll("text.listEntry")
-        .data(function(d, i){
-              return d.values;
+      .attr("opacity", "0");
+
+// drawing list title
+  hoverList.append("text")
+    .attr("class", "listTitle")
+    .attr("x", function(d, i) {
+          return listXPos;
+    })
+    .attr("y", 15)
+    .attr("font-family", "sans-serif")
+    .attr("font-size", "15px")
+    .attr("fill", "white")
+    .text(function(d) {
+          return "Six heaviest meteorites of " + d.values.length + " total";
+    });
+
+// drawing lines inside hoverList
+  hoverList.append("line")
+    .attr("x1", function(d, i) {
+          return w/2 + 50;
+    })
+    .attr("y1", function(d, i) {
+          return 20;
+    })
+    .attr("x2", function(d, i) {
+          return w/2 + 350;
         })
-        .enter()
-        .filter(function (d, i) { return i <= 5;})
-        .append("text")
-          .attr("class", "listEntry")
+    .attr("y2", function(d, i) {
+          return 20;
+    })
+    .attr("stroke-width", 0.5)
+    .attr("stroke", "white");
+
+// drawing list entries
+  hoverList.selectAll("text.listEntry")
+      .data(function(d, i){
+            return d.values;
+      })
+      .enter()
+      .filter(function (d, i) { return i <= 5;})
+      .append("text")
+        .attr("class", "listEntry")
+        .attr("x", function(d, i) {
+              return listXPos;
+        })
+        .attr("y", function(d, i) {
+              return 35 + i * 13;
+        })
+        .attr("font-family", "sans-serif")
+        .attr("font-size", "11px")
+        .attr("fill", "white")
+        .attr("text-anchor", "start")
+        .append("tspan")
+          .attr("class","entryName")
+          .text(function(d) {
+                return d.name;
+          })
+        .append("tspan")
+          .attr("class","entryData")
           .attr("x", function(d, i) {
-                return w/2 + 80;
+                return listXPos + 165;
           })
-          .attr("y", function(d, i) {
-                return 10 + i * 13;
-          })
-          .attr("font-family", "sans-serif")
-          .attr("font-size", "11px")
-          .attr("fill", "white")
-          .attr("text-anchor", "start")
-          .append("tspan")
-            .attr("class","entryName")
-            .text(function(d) {
-                  return d.name;
-            })
-          .append("tspan")
-            .attr("class","entryData")
-            .text(function(d) {
-                  return " - " + d.mass + " gr - Coord: " + d.reclat + ", " + d.reclong;
-            });
+          .text(function(d) {
+                return d.mass + " gr";
+          });
 
 // interactivity
   labels.on("mouseover", function() {
@@ -157,6 +191,17 @@ var barPadding = 4;
             .attr("opacity","0");
       });
 
+  bars.transition()
+  .duration(800)
+  .delay(function(d, i) {
+        return i * 50;
+  })
+  .attr("width", function(d) {
+        return d.values.length/8;
+  })
+  .attr("x", function(d, i) {
+        return w/2 - d.values.length/8;
+  });
 
 
     } // closes else
