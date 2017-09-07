@@ -6,6 +6,33 @@
     <script type="text/javascript" src="d3.min.js"></script>
   </head>
   <body>
+    <div class="text">
+
+      <h1>COLLISION</h1>
+      <p>Collision is a data visualization project based on the data of all of the known meteorite landings. The project explores these records with two visualizations, analyzing the number of collisions and each meteorites’s mass and composition.
+      </br>
+        The data is provided by The Meteoritical Society and distributed through NASA’s Open Data Portal. Its information is updated to 2013.</p>
+      <h2>Number x date</h2>
+      <p class="caption">This bar chart visualizes the number of landings for each year between 1950 and 2013, when the recordings were more likely to be accurate and cover the entire globe. An improvement in the ability to collect data is however noticeable up to the 70s. The year 2013 instead shows partial information, still being collected at the time of release.
+      </br>
+      On user interaction, for each year are displayed the total number of landings and the six heaviest meteorites, with their id.
+      </p>
+    </div>
+    <div id="barChart"></div>
+    <div class="text">
+      <h2>Mass and number x composition</h2>
+      <form>
+        <fieldset>
+          <legend>Select meteorites based on composition:</legend>
+          <input type="radio" name="type" value="iron" checked> Iron<br>
+          <input type="radio" name="type" value="stony-iron"> Stony-Iron<br>
+          <input type="radio" name="type" value="stony"> Stony<br>
+          <input type="radio" name="type" value="relict"> Relict
+        </fieldset>
+      </form>
+    </div>
+    <div id="bubbleChart"></div>
+
   </body>
   <script type="text/javascript" src="script.js"></script>
 </html>
