@@ -226,44 +226,58 @@ var listXPos = w/2 + 100;
     .attr("height", h)
     .attr("id", "bubbleSvg");
 
-// nest data by rectype
   var dataByType = d3.nest()
     .key(function(d) {
           return d.rectype;
     })
-    .entries(dataset) // the original array
+    .rollup(function(d){
+          return d3.mean(d, function(leaves) { return leaves.mass});
+    })
+    .entries(dataset); // the original array
   console.log(dataByType);
 
-// simulate physics
-  var simulation = d3.forceSimulation(dataByType)
-    .force("charge", d3.forceManyBody().strength([-20]))
-    .force("x", d3.forceX())
-    .force("y", d3.forceY())
-    .on("tick", ticked); // updates the position of each circle (from function to DOM)
-
-// call to check the position of each circle
-  function ticked(e) {
-        node.attr("cx", function(d) { return d.x; })
-          .attr("cy", function(d) { return d.y; });
-  };
+// array of colors
+var colors = ["#ff2b2a","#e37a5a","#917157","white"];
 
 // create scale to link radius and mass
   var scaleRadius = d3.scaleLinear()
-            .domain([d3.min(dataByType, function(d) { return d.values.mass; }),
-                    d3.max(dataByType, function(d) { return d.values.mass; })])
-            .range([2,18]);
+            .domain([d3.min(dataByType, function(d) { return d.value; }),
+                    d3.max(dataByType, function(d) { return d.value; })])
+            .range([5,50]);
 
 // create range of colors based on tectype
-  var colorCircles = d3.scaleOrdinal(d3.schemeCategory10);
+  var colorCircles = d3.scaleOrdinal(colors);
 
 // draw circles
   var node = bubbleSvg.selectAll("circle")
-     .data(dataset)
+     .data(dataByType)
      .enter()
      .append("circle")
-     .attr('r', function(d) { return scaleRadius(d.values.mass)})
+     .attr('r', function(d) { return scaleRadius(d.value)})
      .attr("fill", function(d) { return colorCircles(d.key)})
      .attr('transform', 'translate(' + [w/2, h/2] + ')');
+
+ // call to check the position of each circle
+   function ticked(e) {
+      node.attr("cx", function(d) { return d.x; })
+          .attr("cy", function(d) { return d.y; });
+  }
+
+  /* function ticked(e) {
+        node.attr("cx", function(d) { return 100; })
+         .attr("cy", function(d, i) {
+                     if (d.value > 1588.7749534878396){ return d.y = 100; }
+                     else { return d.y = 300; }
+                  });
+   }; */
+
+ // simulate physics
+   var simulation = d3.forceSimulation(dataByType)
+     .force("charge", d3.forceCollide(function(d) { return scaleRadius(d.value)}))
+     .force("x", d3.forceX())
+     .force("y", d3.forceY())
+     .on("tick", ticked); // updates the position of each circle (from function to DOM)
+
 
 
     } // closes else
