@@ -8,22 +8,53 @@
   <body>
     <div class="text">
 
-      <h1>COLLISION</h1>
+      <img src="logo.png" class="logo">
       <h2>A visualization of Meteorite Landings</h2>
-      <p>Collision is a data visualization project based on the data of all of the known meteorite landings. The project explores these records with two visualizations, analyzing the number of collisions and each meteorites’s mass and composition.
-      </br>
+      <p>Collision is a data visualization project based on the data of all of the known meteorite landings. <br>
+        The project explores these records with two visualizations, analyzing the number of collisions and each meteorites’s mass and composition.
+      <br>
         The data is provided by The Meteoritical Society and distributed through NASA’s Open Data Portal. Its information is updated to 2013.</p>
       <h2>Number x date</h2>
-      <p class="caption">This bar chart visualizes the number of landings for each year between 1950 and 2013, when the recordings were more likely to be accurate and cover the entire globe. An improvement in the ability to collect data is however noticeable up to the 70s. The year 2013 instead shows partial information, still being collected at the time of release.
-      </br>
+      <p class="caption">This bar chart visualizes the number of landings for each year between 1950 and 2013, when the recordings were more likely to be accurate. A growth in the number of collected data is however noticeable up to the 70s.
+        <br>
+        The year 2013 shows partial information, since it was still being collected at the time of release.
+      <br><br>
       On user interaction, for each year are displayed the total number of landings and the six heaviest meteorites, with their id.
       </p>
     </div>
     <div id="barChart"></div>
     <div class="text">
       <h2>Mass x composition</h2>
+      <p class="caption">
+        The following bubble chart explores the link between average mass and meteorite composition.
+        <br>
+        Meteorites can be divided into four groups according to their composition:
+      </p>
+      <ul>
+        <li>Stony (Chondrites and Achondrites, Lunar and Martian meteorites);</li>
+        <li>Stony-iron (Pallasites and Mesosiderites);</li>
+        <li>Iron (Magmatic and Non-magmatic).</li>
+      </ul>
+      <p class="caption">
+        Relict meteorites are instead thise whose material has been heavily altered by the fall.
+        <br>
+        The graph enlights how Stony meteorites tend to have a significntly higher mass, on average.
+      </p>
     </div>
     <div id="bubbleChart"></div>
+
+    <footer>
+      <img src="logo.png" class="logo">
+      <div class="centered">
+        <p>Data visualization project by</p>
+        <p>Léonie Aonzo</p>
+        <p><a href="http://leonieaonzo.com">leonieaonzo.com</a></p>
+        <p>2017</p>
+      </div>
+      <br>
+      <p>Built with d3.js</p>
+      <p>Data source: <a href="https://data.nasa.gov/Space-Science/Meteorite-Landings/ak9y-cwf9">NASA Open Data</a></p>
+    </footer>
 
   </body>
   <script type="text/javascript" src="script.js"></script>

@@ -83,7 +83,6 @@ var barPadding = 5;
       .attr("y", function(d, i) {
             return 20 + i * 13;
       })
-      .attr("font-family", "sans-serif")
       .attr("font-size", "11px")
       .attr("fill", "white")
       .attr("text-anchor", "start")
@@ -112,7 +111,6 @@ var listXPos = w/2 + 100;
           return listXPos;
     })
     .attr("y", 15)
-    .attr("font-family", "sans-serif")
     .attr("font-size", "15px")
     .append("tspan")
       .attr("fill", "white")
@@ -162,7 +160,6 @@ var listXPos = w/2 + 100;
         .attr("y", function(d, i) {
               return 35 + i * 13;
         })
-        .attr("font-family", "sans-serif")
         .attr("font-size", "11px")
         .attr("fill", "white")
         .attr("text-anchor", "start")
@@ -174,7 +171,7 @@ var listXPos = w/2 + 100;
         .append("tspan")
           .attr("class","entryData")
           .attr("x", function(d, i) {
-                return listXPos + 165;
+                return listXPos + 150;
           })
           .text(function(d) {
                 return d.mass + " gr";
@@ -203,7 +200,7 @@ var listXPos = w/2 + 100;
   });
 
 // load bar chart
-  barSvg.on("mouseover", function(){
+  d3.select('#barChart').on("mouseover", function(){
         barSvg.selectAll("rect")
         .transition()
           .duration(500)
@@ -221,11 +218,15 @@ var listXPos = w/2 + 100;
 
 // BUBBLE CHART
 
+var w2 = 800;
+var h2 = 400;
+
   var bubbleSvg = d3.select("body").select("#bubbleChart").append("svg")
-    .attr("width", w)
-    .attr("height", h)
+    .attr("width", w2)
+    .attr("height", h2)
     .attr("id", "bubbleSvg");
 
+// nest array by rectype
   var dataByType = d3.nest()
     .key(function(d) {
           return d.rectype;
@@ -233,17 +234,16 @@ var listXPos = w/2 + 100;
     .rollup(function(d){
           return d3.mean(d, function(leaves) { return leaves.mass});
     })
-    .entries(dataset); // the original array
-  console.log(dataByType);
+.entries(dataset); // the original array
 
 // array of colors
-var colors = ["#ff2b2a","#e37a5a","#917157","white"];
+  var colors = ["#ff2b2a","#e37a5a","#917157","white"];
 
 // create scale to link radius and mass
   var scaleRadius = d3.scaleLinear()
             .domain([d3.min(dataByType, function(d) { return d.value; }),
                     d3.max(dataByType, function(d) { return d.value; })])
-            .range([5,50]);
+            .range([5,100]);
 
 // create range of colors based on tectype
   var colorCircles = d3.scaleOrdinal(colors);
@@ -253,23 +253,16 @@ var colors = ["#ff2b2a","#e37a5a","#917157","white"];
      .data(dataByType)
      .enter()
      .append("circle")
-     .attr('r', function(d) { return scaleRadius(d.value)})
+     .attr("class", function(d){ return d.key })
+     .attr('r', 0)
      .attr("fill", function(d) { return colorCircles(d.key)})
-     .attr('transform', 'translate(' + [w/2, h/2] + ')');
+     .attr('transform', 'translate(' + [w2/2, h2/2] + ')');
 
  // call to check the position of each circle
    function ticked(e) {
       node.attr("cx", function(d) { return d.x; })
           .attr("cy", function(d) { return d.y; });
-  }
-
-  /* function ticked(e) {
-        node.attr("cx", function(d) { return 100; })
-         .attr("cy", function(d, i) {
-                     if (d.value > 1588.7749534878396){ return d.y = 100; }
-                     else { return d.y = 300; }
-                  });
-   }; */
+  };
 
  // simulate physics
    var simulation = d3.forceSimulation(dataByType)
@@ -278,6 +271,121 @@ var colors = ["#ff2b2a","#e37a5a","#917157","white"];
      .force("y", d3.forceY())
      .on("tick", ticked); // updates the position of each circle (from function to DOM)
 
+ // draw legend
+   var legend = bubbleSvg.selectAll("text.legend")
+     .data(dataByType)
+     .enter()
+     .append("text")
+      .text(function(d){ return d.key })
+      .attr("fill", function(d) { return colorCircles(d.key)})
+      .attr("x", 5)
+      .attr("y", function(d, i) {
+            return 20 + 20 * i;
+      });
+
+  // tooltips
+  tooltips = bubbleSvg.selectAll("text.tooltips")
+    .data(dataByType)
+    .enter()
+    .append("text")
+      .attr("class", "tooltips")
+      .attr("id", function(d){ return d.key })
+      .attr("fill", "white")
+      .attr("opacity","0")
+      .append("tspan")
+        .text("Average mass in grams:")
+        .attr("font-size", "15px")
+        .attr("x", 600)
+        .attr("y", 20)
+      .append("tspan")
+        .text(function(d){ return d.value })
+        .attr("font-size", "11px")
+        .attr("x", 600)
+        .attr("y", 40);
+
+  // interactivity
+    node.on("mouseover", function() {
+            bubbleSvg.select("#" + this.getAttribute("class"))
+              .transition()
+              .duration(100)
+              .attr("opacity","1");
+    });
+    node.on("mouseout", function() {
+            bubbleSvg.select("#" + this.getAttribute("class"))
+              .transition()
+              .duration(100)
+              .attr("opacity","0");
+    });
+
+/*
+ var dataByType = d3.nest()
+   .key(function(d) {
+         return d.rectype;
+   })
+   .entries(dataset); // the original array
+console.log(dataByType);
+
+// create three sub-arrays filtered by mass
+ var lightWeight = {};
+ var heavyWeight = {};
+ var midWeight = {};
+
+ dataByType.forEach(function(d){
+   lightWeight[d.key] = d.values.filter(function (object) {
+     var mass = object.mass;
+     return mass <= 1000;
+   });
+   midWeight[d.key] = d.values.filter(function (object) {
+     var mass = object.mass;
+     return mass > 1000 && mass <= 100000;
+   });
+   heavyWeight[d.key] = d.values.filter(function (object) {
+     var mass = object.mass;
+     return mass > 100000 && mass <= 60000000;
+   });
+ });
+ console.log(lightWeight);
+ console.log(midWeight);
+ console.log(heavyWeight);
+
+// create scale to link radius and mass
+var scaleRadius = d3.scaleLinear()
+          .domain([0,40434])
+          .range([10,120]);
+
+// create range of colors based on tectype
+var colorCircles = d3.scaleOrdinal(colors);
+
+// draw circles
+var node = bubbleSvg.selectAll("circle")
+   .data(d3.entries(lightWeight))
+   .enter()
+   .append("circle")
+   .attr('r', function(d) { return scaleRadius(d.value.length)})
+   .attr("fill", function(d) { return colorCircles(d.key)})
+   .attr('transform', 'translate(' + [w/2, 150] + ')');
+
+// simulate physics
+  var simulation = d3.forceSimulation()
+    .nodes(lightWeight)
+    .force("charge", d3.forceCollide(function(d) { return d.r + 10; }))
+    .force("x", d3.forceX())
+    .force("y", d3.forceY())
+  .on("tick", ticked); // updates the position of each circle (from function to DOM)
+
+  // call to check the position of each circle
+   function ticked(e) {
+      node.attr("cx", function(d) { return d.x; })
+          .attr("cy", function(d) { return d.y; });
+  } */
+
+// load bubble chart
+  d3.select('#bubbleChart').on("mouseover", function(){
+        bubbleSvg.selectAll("circle")
+        .transition()
+          .duration(500)
+          .attr('r', function(d) { return scaleRadius(d.value)})
+  });
 
 
     } // closes else

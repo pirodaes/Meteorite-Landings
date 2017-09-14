@@ -1,25 +1,32 @@
 @import url('https://fonts.googleapis.com/css?family=Roboto+Condensed:300');
 
 body {
-  background-color: #1e1e1e;
-  font-family: 'Maven Pro', sans-serif;
-}
-
-.text {
-  width: 70%;
-  margin: auto;
-  padding-bottom: 50px;
-  font-size: 16px;
+  background-color: #2a2a2a;
+  font-family: 'Roboto Condensed', sans-serif;
+  margin: 0;
   color: white;
 }
 
-.caption {
-  width: 40%;
-  font-size: 13px;
+.text, footer {
+  width: 70%;
+  margin: auto;
+  padding-bottom: 50px;
+  font-size: 20px;
+}
+
+.logo {
+  width: 70%;
+  max-width: 350px;
+  display: block;
+  margin: 0 auto;
+}
+
+.caption, ul li {
+  width: 50%;
+  font-size: 16px;
 }
 
 h1, h2 {
-  font-family: 'Roboto Condensed', sans-serif;
   font-weight: lighter;
   color: #ff2b2a;
 }
@@ -28,7 +35,44 @@ h2 {
   padding-top: 20px;
 }
 
-#barSvg{
+#barChart, #bubbleChart{
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #1e1e1e;
+}
+
+svg {
+  padding-top: 20px;
+  padding-bottom: 10px;
+}
+
+#bubbleSvg, #barSvg{
   display: block;
-  margin:auto;
+  margin: 0 auto;
+}
+
+a {
+  text-decoration: none;
+  color: #ff2b2a;
+}
+
+a:hover {
+  color: white;
+}
+
+.centered {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+footer {
+  line-height: 2px;
+}
+
+footer .logo {
+  width: 50%;
+  padding-right: 30px;
+  padding-top: 50px;
+  max-width: 200px;
 }
